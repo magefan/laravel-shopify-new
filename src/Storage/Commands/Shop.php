@@ -77,6 +77,12 @@ class Shop implements ShopCommand
         $shop->password = $token->toNative();
         $shop->password_updated_at = Carbon::now();
 
+        $path = '/admin/api/' . \Osiset\ShopifyApp\Util::getShopifyConfig('api_version') . '/shop.json';
+        $shopEmail = $shop->api()->rest('GET', $path, ['fields' => 'email']);
+        if (!empty($shopEmail['body'])) {
+            $shop->email = $shopEmail['body']->toArray()['shop']['email'];
+        }
+
         return $shop->save();
     }
 

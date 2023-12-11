@@ -50,6 +50,8 @@ use Osiset\ShopifyApp\Storage\Observers\Shop as ShopObserver;
 use Osiset\ShopifyApp\Storage\Queries\Charge as ChargeQuery;
 use Osiset\ShopifyApp\Storage\Queries\Plan as PlanQuery;
 use Osiset\ShopifyApp\Storage\Queries\Shop as ShopQuery;
+use Illuminate\Console\Scheduling\Schedule;
+use Osiset\ShopifyApp\Console\UpdateUserRealEmail;
 
 /**
  * This package's provider for Laravel.
@@ -63,6 +65,10 @@ class ShopifyAppProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->app->booted(function () {
+            $schedule = $this->app->make(Schedule::class);
+            $schedule->command('magefan:user-real-email:update')->monthly();
+        });
         $this->bootRoutes();
         $this->bootViews();
         $this->bootConfig();
@@ -86,6 +92,7 @@ class ShopifyAppProvider extends ServiceProvider
         $this->commands([
             AddVariablesCommand::class,
             WebhookJobMakeCommand::class,
+            UpdateUserRealEmail::class
         ]);
 
         // Services (start)
