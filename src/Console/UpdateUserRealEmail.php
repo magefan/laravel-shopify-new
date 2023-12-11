@@ -33,15 +33,22 @@ class UpdateUserRealEmail extends Command
 
         $users = User::all();
         foreach ($users as $user) {
-            $shopEmail = $user->api()->rest('GET', $path, ['fields' => 'email']);
-            if (!empty($shopEmail['body'])) {
-                $email = $shopEmail['body']->toArray()['shop']['email'];
-                if ($email === $user->email) {
-                    continue;
+            try {
+                $shopEmail = $user->api()->rest('GET', $path, ['fields' => 'email']);
+                if (!empty($shopEmail['body']) && !is_string($shopEmail['body'])) {
+                    $email = $shopEmail['body']->toArray()['shop']['email'];
+                    if ($email === $user->email) {
+                        continue;
+                    }
+                    $user->email = $email;
+                    $user->save();    
+                } else {
+                    //var_dump($shopEmail['body']) ;
+                    //echo PHP_EOL;
                 }
-                $user->email = $email;
-                $user->save();
-            }
+            } catch (\Exception $e) {
+               //echo $e->getMessage() . PHP_EOL; 
+            }  
         }
     }
 }
